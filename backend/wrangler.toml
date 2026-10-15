@@ -1,0 +1,8 @@
+name = "mts-live-feeds"
+main = "worker.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+# No paid plan, bindings, KV, R2, D1, durable objects, or subscription is needed.
+# Deploy only after confirming that the account's Workers plan is Free.
+[observability]
+enabled = false

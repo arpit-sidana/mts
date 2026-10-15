@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '7,27,47 * * * *'
 permissions:
   contents: read
   pages: write
@@ -21,6 +23,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Collect a dated aircraft fallback
+        run: node scripts/collect-flights.mjs
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

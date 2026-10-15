@@ -1,19 +1,13 @@
 import type { Position } from '../data/snapshot';
+import { Body, EquatorFromVector, GeoVector, RotateVector, Rotation_EQJ_EQD, SiderealTime } from 'astronomy-engine';
 const RAD = Math.PI / 180;
 export const normalizeLongitude = (lon: number) => ((lon + 180) % 360 + 360) % 360 - 180;
 
-// Low-cost solar ephemeris (NOAA-style mean solar coordinates).
-// Earth rotation uses UTC Greenwich sidereal time; declination uses axial tilt.
+// Apparent geocentric solar position in the equatorial frame of date, including
+// precession, nutation and aberration. No network delay or user-selected time.
 export function solarPosition(date: Date): { longitude: number; latitude: number } {
-  const jd = date.getTime() / 86400000 + 2440587.5;
-  const d = jd - 2451545;
-  const meanLongitude = (280.46 + 0.9856474 * d) % 360;
-  const anomaly = (357.528 + 0.9856003 * d) * RAD;
-  const ecliptic = (meanLongitude + 1.915 * Math.sin(anomaly) + 0.02 * Math.sin(2 * anomaly)) * RAD;
-  const obliquity = (23.439 - 0.0000004 * d) * RAD;
-  const rightAscension = Math.atan2(Math.cos(obliquity) * Math.sin(ecliptic), Math.cos(ecliptic)) / RAD;
-  const sidereal = 280.46061837 + 360.98564736629 * d;
-  return { longitude: normalizeLongitude(rightAscension - sidereal), latitude: Math.asin(Math.sin(obliquity) * Math.sin(ecliptic)) / RAD };
+  const equatorial=EquatorFromVector(RotateVector(Rotation_EQJ_EQD(date),GeoVector(Body.Sun,date,true)));
+  return {longitude:normalizeLongitude(15*(equatorial.ra-SiderealTime(date))),latitude:equatorial.dec};
 }
 
 export function solarAltitude(position: Position, date: Date): number {
@@ -28,7 +22,8 @@ export function nightPolygon(date: Date): GeoJSON.Feature<GeoJSON.Polygon> {
   const pole = declination >= 0 ? -90 : 90;
   const edge: Position[] = [];
   for (let lon = -180; lon <= 180; lon += 1) {
-    const x = -Math.cos((lon - sun.longitude) * RAD) / (Math.abs(Math.tan(declination)) < 1e-7 ? 1e-7 : Math.tan(declination));
+    const tangent=Math.tan(declination);
+    const x = -Math.cos((lon - sun.longitude) * RAD) / (Math.abs(tangent) < 1e-7 ? (tangent<0?-1e-7:1e-7) : tangent);
     edge.push([lon, Math.atan(x) / RAD]);
   }
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [[[-180,pole], ...edge, [180,pole], [-180,pole]]] } };

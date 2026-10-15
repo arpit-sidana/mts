@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { mockTelemetry } from './fixtures';
+test.beforeEach(async({page})=>{await mockTelemetry(page);});
 
 test('the actual WebGL globe loads without runtime errors',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
@@ -11,6 +13,7 @@ test('the actual WebGL globe loads without runtime errors',async({page})=>{
   await expect.poll(async()=>Number(await page.locator('[data-zoom]').getAttribute('data-zoom'))).toBeGreaterThan(before+0.8);
   await page.getByRole('button',{name:'Return to global view',exact:true}).click();
   await expect.poll(async()=>Math.abs(Number(await page.locator('[data-zoom]').getAttribute('data-zoom'))-before)).toBeLessThan(0.1);
+  await page.getByRole('switch',{name:'Observed aircraft positions'}).click();
   const canvas=page.locator('.maplibregl-canvas');const bounds=await canvas.boundingBox();
   await canvas.click({position:{x:bounds!.width/2,y:bounds!.height/2}});
   await expect(page.getByRole('complementary',{name:'Location details'})).toBeVisible();
@@ -29,12 +32,12 @@ test('a briefing signal opens evidence, related signals, and detailed geographic
   await expect(panel).toContainText('44.66M TEU');
   await page.getByRole('button',{name:'Close details'}).click();await expect(panel).toHaveCount(0);
 });
-test('layers, solar time, pause, source filtering, export, and index search work',async({page})=>{
+test('layers, automatic daylight, pause, source filtering, export, and index search work',async({page})=>{
   await page.goto('/');await expect(page.locator('.map-ready')).toHaveAttribute('data-ready','true',{timeout:30000});
   const weather=page.getByRole('button',{name:/Weather impacts/});await weather.click();await expect(weather).toHaveAttribute('aria-pressed','true');
-  await page.getByRole('switch',{name:'Day and night overlay'}).click();
-  await page.getByRole('slider',{name:'Snapshot UTC hour'}).fill('8');await expect(page.locator('.solar-controls')).toContainText('08:00 UTC');
-  await page.getByRole('switch',{name:'Illustrative flight movement'}).click();await expect(page.getByRole('switch',{name:'Illustrative flight movement'})).toHaveAttribute('aria-checked','true');
+  await expect(page.getByRole('slider')).toHaveCount(0);
+  await expect(page.locator('.daylight-fixed')).toContainText('NOW / UTC');
+  await page.getByRole('switch',{name:'Observed aircraft positions'}).click();await expect(page.getByRole('switch',{name:'Observed aircraft positions'})).toHaveAttribute('aria-checked','false');
   await page.getByRole('button',{name:'Pause animations',exact:true}).click();await expect(page.getByRole('button',{name:'Play animations',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Sources',exact:true}).click();
   await page.getByRole('combobox',{name:'Filter sources by activity'}).selectOption('weather');await expect(page.locator('.source-list article')).toHaveCount(1);

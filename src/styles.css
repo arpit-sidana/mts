@@ -23,3 +23,6 @@
 @media(min-width:651px) and (max-width:900px){.globe-map{left:90px;top:55px;bottom:130px}.layer-dock{max-height:calc(100dvh - 470px);overflow:auto;scrollbar-width:thin}}
 @media(max-width:650px){.layer-dock{max-height:calc(100dvh - 490px);overflow:auto;scrollbar-width:thin}.layer-dock.collapsed{max-height:none}.globe-map{top:40px;bottom:125px}}
 .focus-mode .globe-map{inset:0}
+/* Provider attribution belongs to the viewport footer, outside the map's inset canvas. */
+.maplibregl-ctrl-bottom-right{position:fixed!important;bottom:2px!important;right:34px!important}
+@media(max-width:650px){.maplibregl-ctrl-bottom-right{right:18px!important;bottom:2px!important}.animation-control{font-size:5px;gap:3px!important}.animation-control .footer-divider{display:none}}

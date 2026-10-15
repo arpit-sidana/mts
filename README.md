@@ -2,6 +2,8 @@
 
 A planetary observatory for the infrastructure, energy, materials, and trade corridors shaping the global economy. A static, GitHub Pages-compatible React/TypeScript application with a genuine WebGL globe and detailed vector maps.
 
+**[Open MTS](https://arpit-sidana.github.io/mts/)**
+
 ## Run
 
 Use Node.js 22 or newer.

@@ -38,7 +38,7 @@ function createIcon(path: string, color: string): Promise<ImageBitmap> {
   }));
 }
 export default function Globe(props: Props) {
-  const container = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null), latest = useRef(props);
+  const container = useRef<HTMLDivElement>(null), credits = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null), latest = useRef(props);
   latest.current = props;
   const [ready, setReady] = useState(false), [error, setError] = useState(''), [hover, setHover] = useState<{ x: number; y: number; id: string } | null>(null);
 
@@ -49,7 +49,10 @@ export default function Globe(props: Props) {
       m = new maplibregl.Map({ container: container.current!, style: `${import.meta.env.BASE_URL}basemap.json`, center: homePosition, zoom: homeZoom(), minZoom: -1, maxZoom: 19, attributionControl: false, canvasContextAttributes: { antialias: true }, fadeDuration: 250 });
     } catch { setError('This browser could not start the 3D globe. Explore the signal index below, or try a browser with WebGL enabled.'); return; }
     map.current = m;
-    m.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>' }), 'bottom-right');
+    m.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+    // Keep MapLibre's source-aware attribution above the page vignette and HUD.
+    const attributionPosition = m.getContainer().querySelector('.maplibregl-ctrl-bottom-right');
+    if (attributionPosition) credits.current?.appendChild(attributionPosition);
     const controls: GlobeControls = {
       home: () => m.flyTo({ center: homePosition, zoom: homeZoom(), bearing: 0, pitch: 0, duration: 1400 }),
       zoom: amount => m.zoomTo(m.getZoom() + amount, { duration: 350 }),
@@ -151,6 +154,7 @@ export default function Globe(props: Props) {
   const hovered=signals.find(s=>s.id===hover?.id);
   return <>
     <div ref={container} className="globe-map" aria-label="Interactive Earth map. Drag to rotate, scroll to zoom, click a signal to investigate." />
+    <div ref={credits} className="map-credit-layer" />
     {!ready && !error && <div className="map-loading"><span className="loader-ring"/><span>Establishing planetary view<span className="loading-dots">...</span></span></div>}
     {error && <div role="status" className="map-error">{error}</div>}
     {hover && hovered && <div className="map-tooltip" style={{left:Math.min(hover.x+20,window.innerWidth-265),top:Math.max(85,hover.y-65)}}><span style={{color:categories[hovered.category].color}}>{categories[hovered.category].short} / {hovered.status.toUpperCase()}</span><strong>{hovered.location}</strong><small>Click to investigate ↗</small></div>}

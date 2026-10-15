@@ -26,3 +26,4 @@
 /* Provider attribution belongs to the viewport footer, outside the map's inset canvas. */
 .maplibregl-ctrl-bottom-right{position:fixed!important;bottom:2px!important;right:34px!important}
 @media(max-width:650px){.maplibregl-ctrl-bottom-right{right:18px!important;bottom:2px!important}.animation-control{font-size:5px;gap:3px!important}.animation-control .footer-divider{display:none}}
+.map-credit-layer{position:absolute;inset:0;z-index:7;pointer-events:none}.map-credit-layer .maplibregl-ctrl-bottom-right{pointer-events:auto}.map-credit-layer .maplibregl-ctrl-attrib{margin:0!important;font-size:7px!important;line-height:20px!important;box-shadow:none!important}.map-credit-layer .maplibregl-ctrl-attrib.maplibregl-compact{min-height:20px!important}

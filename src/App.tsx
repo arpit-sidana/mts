@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ElementType } from 'react';
+import { useCallback, useEffect, useRef, useState, type ElementType } from 'react';
 import { Activity, ArrowDown, ArrowUpRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Compass, Cpu, Crosshair, Download, Expand, Eye, Globe2, Layers, LocateFixed, Maximize, Menu, Minus, Moon, Orbit, Pause, Pickaxe, Plane, Play, Plus, Radar, Search, Ship, SlidersHorizontal, Sun, Waves, X, Zap, CloudRain } from 'lucide-react';
 import Globe, { type GlobeControls } from './components/Globe';
 import { categories, routes, signals, SNAPSHOT_DATE, SNAPSHOT_TIME, type Category, type Position, type Signal } from './data/snapshot';
@@ -48,7 +48,7 @@ export default function App() {
   const sun=solarPosition(new Date(solarTime));
   useEffect(()=>{const id=setInterval(()=>setNow(new Date()),1000);return()=>clearInterval(id);},[]);
   useEffect(()=>{if(toast){const t=setTimeout(()=>setToast(''),3500);return()=>clearTimeout(t);}},[toast]);
-  const closeDialog=()=>setDialog(null);
+  const closeDialog=useCallback(()=>setDialog(null),[]);
   const select=(id:string)=>{
     const s=signals.find(x=>x.id===id);if(!s)return;
     setSelected(id);setPoint(null);setSelectedRoute(null);setOrbit(false);setDialog(null);
